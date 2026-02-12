@@ -58,6 +58,35 @@ const Shipments = () => {
         navigate(`/shipments/${shipment._id}`);
     };
 
+    const handleEditShipment = (shipment) => {
+        navigate(`/shipments/${shipment._id}`, { state: { editMode: true } });
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this shipment? This action cannot be undone.')) {
+            try {
+                const config = { headers: { Authorization: `Bearer ${user.token}` } };
+                await axios.delete(`${API_BASE_URL}/shipments/${id}`, config);
+                // Refresh list
+                const updatedShipments = shipments.filter(s => s._id !== id);
+                setShipments(updatedShipments);
+                setFilteredShipments(updatedShipments.filter(shipment => {
+                    const buyerName = shipment.buyerDetails?.name?.toLowerCase() || '';
+                    const reference = shipment.reference?.toLowerCase() || '';
+                    const purchaseRef = shipment.purchase?.reference?.toLowerCase() || '';
+                    const search = searchTerm.toLowerCase();
+
+                    return buyerName.includes(search) ||
+                        reference.includes(search) ||
+                        purchaseRef.includes(search);
+                }));
+            } catch (error) {
+                console.error('Error deleting shipment:', error);
+                alert('Failed to delete shipment');
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -201,10 +230,24 @@ const Shipments = () => {
                                     <div className="flex flex-col space-y-2 ml-4">
                                         <button
                                             onClick={() => handleViewShipment(shipment)}
-                                            className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium"
+                                            className="flex items-center justify-center w-full px-4 py-2 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition-colors text-sm font-medium"
                                         >
                                             <Eye size={16} className="mr-2" />
-                                            View Invoice
+                                            View
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditShipment(shipment)}
+                                            className="flex items-center justify-center w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors text-sm font-medium"
+                                        >
+                                            <Edit size={16} className="mr-2" />
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(shipment._id)}
+                                            className="flex items-center justify-center w-full px-4 py-2 bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition-colors text-sm font-medium"
+                                        >
+                                            <Trash2 size={16} className="mr-2" />
+                                            Delete
                                         </button>
                                     </div>
                                 </div>

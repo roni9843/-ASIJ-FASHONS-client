@@ -36,7 +36,7 @@ const CreateShipment = () => {
         if (selectedBuyer) {
             fetchBuyerPurchases();
         }
-    }, [selectedBuyer]);
+    }, [selectedBuyer, selectedPurchase]);
 
     const fetchShipmentData = async () => {
         try {
@@ -69,13 +69,17 @@ const CreateShipment = () => {
                     ...item,
                     selected: true,
                     originalQty: item.qty,
-                    remainingQty: 0,
+                    remainingQty: item.qty, // Allow editing up to current qty at minimum
                     shippedQty: item.qty
                 })));
             }
 
-            // Show invoice directly when viewing existing shipment
-            setShowInvoice(true);
+            // Show invoice directly only if NOT in edit mode
+            if (location.state?.editMode) {
+                setShowInvoice(false);
+            } else {
+                setShowInvoice(true);
+            }
             setLoading(false);
         } catch (err) {
             console.error('Error fetching shipment:', err);
@@ -90,6 +94,29 @@ const CreateShipment = () => {
             const { data } = await axios.get(`${API_BASE_URL}/purchases`, config);
             const buyerPurchases = data.filter(p => p.buyer._id === selectedBuyer._id || p.buyer === selectedBuyer._id);
             setPurchases(buyerPurchases);
+
+            // If editing, try to update remaining quantities logic
+            if (id && selectedPurchase) {
+                const purchase = buyerPurchases.find(p => p._id === selectedPurchase._id);
+                if (purchase && purchase.buyerTargetSet) {
+                    setShippedItems(prevItems => prevItems.map(item => {
+                        const targetItem = purchase.buyerTargetSet.find(t => t.item === item.item);
+                        if (targetItem) {
+                            const totalShipped = targetItem.shippedQty || 0;
+                            const currentShipmentQty = item.qty;
+                            // Remaining available to allocate = (Total Target - Total Shipped) + Current Shipment Allocation
+                            const available = (targetItem.qty - totalShipped) + currentShipmentQty;
+
+                            return {
+                                ...item,
+                                remainingQty: available,
+                                originalQty: targetItem.qty
+                            };
+                        }
+                        return item;
+                    }));
+                }
+            }
         } catch (err) {
             console.error('Error fetching purchases:', err);
         }
@@ -177,7 +204,7 @@ const CreateShipment = () => {
 
             const filteredShippedItems = shippedItems
                 .filter(item => item.selected)
-                .map(({ selected, originalQty, ...rest }) => rest);
+                .map(({ selected, originalQty, remainingQty, shippedQty, ...rest }) => rest);
 
             const payload = {
                 ...formData,
@@ -206,20 +233,29 @@ const CreateShipment = () => {
         window.print();
     };
 
+    const handleEditInvoice = () => {
+        setShowInvoice(false);
+    };
+
     if (showInvoice) {
         return (
             <div className="min-h-screen bg-gray-50 print:bg-white">
                 <div className="max-w-4xl mx-auto p-8 print:p-0">
                     {/* Print Actions */}
                     <div className="mb-6 flex justify-between items-center print:hidden">
-                        <button onClick={() => navigate('/buyers')} className="flex items-center text-gray-600 hover:text-gray-900">
+                        <button onClick={() => navigate('/shipments')} className="flex items-center text-gray-600 hover:text-gray-900">
                             <ArrowLeft className="mr-2" size={20} />
-                            Back to Buyers
+                            Back to Shipments
                         </button>
-                        <button onClick={handlePrint} className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                            <Printer className="mr-2" size={18} />
-                            Print Invoice
-                        </button>
+                        <div className="space-x-4">
+                            <button onClick={handleEditInvoice} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+                                Edit Invoice
+                            </button>
+                            <button onClick={handlePrint} className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium flex items-center inline-flex">
+                                <Printer className="mr-2" size={18} />
+                                Print Invoice
+                            </button>
+                        </div>
                     </div>
 
                     {/* Invoice */}
