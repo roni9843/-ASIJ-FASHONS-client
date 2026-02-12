@@ -54,6 +54,7 @@ function App() {
           <Route path="hr/edit-employee/:id" element={<EditEmployee />} />
           <Route path="expenses" element={<Expenses />} />
           <Route path="expenses/create" element={<CreateExpense />} />
+          <Route path="expenses/:id" element={<CreateExpense />} />
           <Route path="inventory" element={<Inventory />} />
           <Route path="orders" element={<Orders />} />
           <Route path="purchases" element={<Purchases />} />
