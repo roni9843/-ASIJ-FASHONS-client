@@ -57,7 +57,7 @@ const Login = () => {
                     </button>
                 </form>
                 <div className="mt-6 text-center text-sm text-gray-500">
-                    <p>Demo Admin: admin@gmail.com / 12345678</p>
+                    <p>Be secure by ASIJ-FASHONS</p>
                 </div>
             </div>
         </div>
