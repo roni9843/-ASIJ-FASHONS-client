@@ -158,10 +158,10 @@ const CreateExpense = () => {
         try {
             const config = {
                 headers: {
-                    Authorization: `Bearer ${user.token} `,
+                    Authorization: `Bearer ${user.token}`,
                 },
             };
-            const { data } = await axios.get(`${API_BASE_URL} /expenses/${expenseId} `, config);
+            const { data } = await axios.get(`${API_BASE_URL}/expenses/${expenseId}`, config);
 
             // Map backend data to form structure
             setFormData({
@@ -169,8 +169,6 @@ const CreateExpense = () => {
                 subtitle: data.subtitle || '',
                 description: data.description || '',
                 expenseDate: data.date ? new Date(data.date).toISOString().slice(0, 16) : getCurrentDateTime(),
-                reference: data.reference || '',
-                discountType: data.discountType || 'fixed',
                 reference: data.reference || '',
                 discountType: data.discountType || 'fixed',
                 discountValue: data.discountValue || 0
@@ -231,7 +229,7 @@ const CreateExpense = () => {
         try {
             const config = {
                 headers: {
-                    Authorization: `Bearer ${user.token} `,
+                    Authorization: `Bearer ${user.token}`,
                 },
             };
 
@@ -246,7 +244,7 @@ const CreateExpense = () => {
 
             if (id) {
                 // Update existing expense
-                await axios.put(`${API_BASE_URL} /expenses/${id} `, payload, config);
+                await axios.put(`${API_BASE_URL}/expenses/${id}`, payload, config);
                 // After update, maybe go to view mode or list?
                 // Left's go to View Mode to see the updated invoice
                 setIsViewMode(true);

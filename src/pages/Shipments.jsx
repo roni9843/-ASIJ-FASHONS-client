@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Truck, Eye, Printer, Search, Calendar, Package, DollarSign } from 'lucide-react';
+import { Truck, Eye, Printer, Search, Calendar, Package, DollarSign, Edit, Trash2 } from 'lucide-react';
 import API_BASE_URL from '../config/api';
 import useAuthStore from '../stores/useAuthStore';
+import useActionPasswordStore from '../stores/useActionPasswordStore';
 
 const Shipments = () => {
     const navigate = useNavigate();
@@ -12,6 +13,8 @@ const Shipments = () => {
     const [filteredShipments, setFilteredShipments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+
+    const { openModal } = useActionPasswordStore();
 
     useEffect(() => {
         fetchShipments();
@@ -59,32 +62,36 @@ const Shipments = () => {
     };
 
     const handleEditShipment = (shipment) => {
-        navigate(`/shipments/${shipment._id}`, { state: { editMode: true } });
+        openModal(() => {
+            navigate(`/shipments/${shipment._id}`, { state: { editMode: true } });
+        }, 'edit shipment');
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this shipment? This action cannot be undone.')) {
-            try {
-                const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                await axios.delete(`${API_BASE_URL}/shipments/${id}`, config);
-                // Refresh list
-                const updatedShipments = shipments.filter(s => s._id !== id);
-                setShipments(updatedShipments);
-                setFilteredShipments(updatedShipments.filter(shipment => {
-                    const buyerName = shipment.buyerDetails?.name?.toLowerCase() || '';
-                    const reference = shipment.reference?.toLowerCase() || '';
-                    const purchaseRef = shipment.purchase?.reference?.toLowerCase() || '';
-                    const search = searchTerm.toLowerCase();
+        openModal(async () => {
+            if (window.confirm('Are you sure you want to delete this shipment? This action cannot be undone.')) {
+                try {
+                    const config = { headers: { Authorization: `Bearer ${user.token}` } };
+                    await axios.delete(`${API_BASE_URL}/shipments/${id}`, config);
+                    // Refresh list
+                    const updatedShipments = shipments.filter(s => s._id !== id);
+                    setShipments(updatedShipments);
+                    setFilteredShipments(updatedShipments.filter(shipment => {
+                        const buyerName = shipment.buyerDetails?.name?.toLowerCase() || '';
+                        const reference = shipment.reference?.toLowerCase() || '';
+                        const purchaseRef = shipment.purchase?.reference?.toLowerCase() || '';
+                        const search = searchTerm.toLowerCase();
 
-                    return buyerName.includes(search) ||
-                        reference.includes(search) ||
-                        purchaseRef.includes(search);
-                }));
-            } catch (error) {
-                console.error('Error deleting shipment:', error);
-                alert('Failed to delete shipment');
+                        return buyerName.includes(search) ||
+                            reference.includes(search) ||
+                            purchaseRef.includes(search);
+                    }));
+                } catch (error) {
+                    console.error('Error deleting shipment:', error);
+                    alert('Failed to delete shipment');
+                }
             }
-        }
+        }, 'delete shipment');
     };
 
     if (loading) {

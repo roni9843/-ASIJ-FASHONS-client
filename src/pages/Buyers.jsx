@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Plus, Search, Edit, Trash2, X, Phone, MapPin, Building2, Briefcase, Truck } from 'lucide-react';
 import API_BASE_URL from '../config/api';
 import useAuthStore from '../stores/useAuthStore';
+import useActionPasswordStore from '../stores/useActionPasswordStore';
 
 
 const Buyers = () => {
@@ -23,6 +24,8 @@ const Buyers = () => {
         subtitle: '',
         description: ''
     });
+
+    const { openModal: openPasswordModal } = useActionPasswordStore();
 
     useEffect(() => {
         fetchBuyers();
@@ -104,18 +107,21 @@ const Buyers = () => {
         }
     };
 
+    // Modified handleDelete to use password modal
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this buyer?')) {
-            try {
-                const config = {
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                await axios.delete(`${API_BASE_URL}/buyers/${id}`, config);
-                fetchBuyers();
-            } catch (error) {
-                console.error(error);
+        openPasswordModal(async () => {
+            if (window.confirm('Are you sure you want to delete this buyer?')) {
+                try {
+                    const config = {
+                        headers: { Authorization: `Bearer ${user.token}` },
+                    };
+                    await axios.delete(`${API_BASE_URL}/buyers/${id}`, config);
+                    fetchBuyers();
+                } catch (error) {
+                    console.error(error);
+                }
             }
-        }
+        }, 'delete buyer');
     };
 
     const handleNewPurchase = (buyer) => {
@@ -126,29 +132,42 @@ const Buyers = () => {
         navigate('/shipments/create', { state: { buyer } });
     };
 
+    // Modified openModal to use password for editing
     const openModal = (buyer = null) => {
+        const openForm = () => {
+            if (buyer) {
+                setCurrentBuyer(buyer);
+                setFormData({
+                    name: buyer.name,
+                    companyName: buyer.companyName || '',
+                    phones: buyer.phones && buyer.phones.length > 0 ? buyer.phones : [''],
+                    address: buyer.address || '',
+                    subtitle: buyer.subtitle || '',
+                    description: buyer.description || ''
+                });
+            } else {
+                setCurrentBuyer(null);
+                setFormData({
+                    name: '',
+                    companyName: '',
+                    phones: [''],
+                    address: '',
+                    subtitle: '',
+                    description: ''
+                });
+            }
+            setShowModal(true);
+        };
+
         if (buyer) {
-            setCurrentBuyer(buyer);
-            setFormData({
-                name: buyer.name,
-                companyName: buyer.companyName || '',
-                phones: buyer.phones && buyer.phones.length > 0 ? buyer.phones : [''],
-                address: buyer.address || '',
-                subtitle: buyer.subtitle || '',
-                description: buyer.description || ''
-            });
+            // Edit mode - require password
+            openPasswordModal(openForm, 'edit buyer');
         } else {
-            setCurrentBuyer(null);
-            setFormData({
-                name: '',
-                companyName: '',
-                phones: [''],
-                address: '',
-                subtitle: '',
-                description: ''
-            });
+            // Create mode - no password needed (or maybe yes? User said "edit and delete")
+            // User: "amr amr software joto gula edit and delete btn ache oi gula keo use korte parbe nah"
+            // So Add (Create) is typically okay, but Edit/Delete needs password.
+            openForm();
         }
-        setShowModal(true);
     };
 
     const closeModal = () => {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Printer, Save, Package, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Printer, Save, Package, Plus, Trash2, Calendar, Hash, Briefcase } from 'lucide-react';
 import useAuthStore from '../stores/useAuthStore';
 import API_BASE_URL from '../config/api';
 import logo from '../assets/logo.png';

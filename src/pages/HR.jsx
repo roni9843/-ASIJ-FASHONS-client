@@ -1,18 +1,15 @@
+
 import { useEffect, useState } from 'react';
 import useAppStore from '../stores/useAppStore';
-import { UserPlus, Search, Phone, Mail, Clock, DollarSign, Calendar } from 'lucide-react';
+import useActionPasswordStore from '../stores/useActionPasswordStore';
+import { UserPlus, Search, Phone, Mail, Clock, DollarSign, Calendar, Edit } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const HR = () => {
-    const { employees, fetchEmployees, addEmployee, deleteEmployee, markAttendance, calculatePayroll, isLoading } = useAppStore();
+    const { employees, fetchEmployees, deleteEmployee, markAttendance, calculatePayroll, isLoading } = useAppStore();
     const [activeTab, setActiveTab] = useState('employees');
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    
-    // Forms State
-    const [employeeForm, setEmployeeForm] = useState({
-        name: '', designation: '', email: '', phone: '', salary: 0, salaryType: 'Monthly', defaultOvertimeRate: 0, status: 'Active'
-    });
-    
+
     // Attendance State
     const [attendanceData, setAttendanceData] = useState({
         employeeId: '', date: new Date().toISOString().slice(0, 10), status: 'Present', inTime: '08:00', outTime: '17:00', overtimeHours: 0, overtimeRate: 0, hourlyRate: 0
@@ -24,17 +21,11 @@ const HR = () => {
     });
     const [payrollResult, setPayrollResult] = useState(null);
 
+    const { openModal } = useActionPasswordStore();
+
     useEffect(() => {
         fetchEmployees();
     }, [fetchEmployees]);
-
-    const handleAddEmployee = async (e) => {
-        e.preventDefault();
-        if (await addEmployee(employeeForm)) {
-            setIsModalOpen(false);
-            setEmployeeForm({ name: '', designation: '', email: '', phone: '', salary: 0, status: 'Active' });
-        }
-    };
 
     const handleMarkAttendance = async (e) => {
         e.preventDefault();
@@ -51,9 +42,11 @@ const HR = () => {
     };
 
     const handleDeleteEmployee = async (id) => {
-        if(window.confirm('আপনি কি নিশ্চিত যে আপনি এই কর্মীকে ডিলিট করতে চান?')) {
-            await deleteEmployee(id);
-        }
+        openModal(async () => {
+            if (window.confirm('আপনি কি নিশ্চিত যে আপনি এই কর্মীকে ডিলিট করতে চান?')) {
+                await deleteEmployee(id);
+            }
+        }, 'delete employee');
     };
 
     const filteredEmployees = employees.filter(emp =>
@@ -70,9 +63,8 @@ const HR = () => {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 rounded-md capitalize text-sm font-medium transition-all ${
-                                activeTab === tab ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                            }`}
+                            className={`px-4 py-2 rounded-md capitalize text-sm font-medium transition-all ${activeTab === tab ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                                } `}
                         >
                             {tab === 'employees' ? 'কর্মী' : tab === 'attendance' ? 'হাজিরা' : 'বেতন'}
                         </button>
@@ -94,13 +86,13 @@ const HR = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button
-                            onClick={() => setIsModalOpen(true)}
+                        <Link
+                            to="/hr/add"
                             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
                         >
                             <UserPlus size={20} />
                             <span>কর্মী যোগ করুন</span>
-                        </button>
+                        </Link>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -117,17 +109,36 @@ const HR = () => {
                                 </div>
                                 <div className="space-y-2 text-sm text-gray-600">
                                     <div className="flex items-center space-x-2"><Mail size={16} /> <span>{emp.email || 'N/A'}</span></div>
-                                    <div className="flex items-center space-x-2"><Phone size={16} /> <span>{emp.phone}</span></div>
+                                    <div className="flex items-start space-x-2">
+                                        <Phone size={16} className="mt-1" />
+                                        <div className="flex flex-col">
+                                            {emp.phones && emp.phones.length > 0 ? emp.phones.map((p, idx) => (
+                                                <span key={idx}>{p}</span>
+                                            )) : <span>{emp.phone}</span>}
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        <p>NID: {emp.nid || 'N/A'}</p>
+                                    </div>
                                     <div className="flex justify-between border-t pt-2 mt-2">
                                         <span>মোট বেতন/রেট</span>
-                                        <span className="font-bold text-gray-800">৳{emp.salary} <span className="text-xs font-normal text-gray-500">({emp.salaryType === 'Monthly' ? 'মাসিক' : 'ঘন্টা'})</span></span>
+                                        <span className="font-bold text-gray-800">৳{emp.salary} <span className="text-xs font-normal text-gray-500">({emp.salaryType === 'Monthly' ? 'মাসিক' : 'কাজ অনুযায়ী'})</span></span>
                                     </div>
-                                    <button 
-                                        onClick={() => handleDeleteEmployee(emp._id)}
-                                        className="w-full mt-2 text-red-500 text-xs hover:bg-red-50 py-1 rounded transition-colors"
-                                    >
-                                        ডিলিট করুন
-                                    </button>
+                                    <div className="flex gap-2 mt-2">
+                                        <Link
+                                            to={`/hr/edit/${emp._id}`}
+                                            className="flex-1 flex justify-center items-center text-indigo-600 text-sm hover:bg-indigo-50 py-1 rounded transition-colors"
+                                        >
+                                            <Edit size={14} className="mr-1" />
+                                            এডিট
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDeleteEmployee(emp._id)}
+                                            className="flex-1 text-red-500 text-sm hover:bg-red-50 py-1 rounded transition-colors"
+                                        >
+                                            ডিলিট
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -156,18 +167,18 @@ const HR = () => {
                                         // BUT if it's Monthly, we should probably convert it to Hourly Rate for the input
                                         // so that if they leave it, it saves as the calculated hourly rate.
                                         // AND if they change it (e.g. 200), it saves as 200.
-                                        
+
                                         // If I send 12000 (Monthly) as hourlyRate, backend will do 12000 * 8 = 96000. WRONG.
                                         // So for Monthly, we MUST pre-fill with the Calculated Hourly Rate.
-                                        
+
                                         // Logic: If explicitly Monthly, calc hourly rate. Else (Hourly or others), use raw salary.
                                         // This fixes the issue where 'Hourly' might be case-sensitive or mismatching, resulting in '1'.
                                         const hourlyRate = emp ? (
                                             emp.salaryType === 'Monthly' ? Math.round(emp.salary / 208) : emp.salary
                                         ) : 0;
-                                        
-                                        setAttendanceData({ 
-                                            ...attendanceData, 
+
+                                        setAttendanceData({
+                                            ...attendanceData,
                                             employeeId: e.target.value,
                                             overtimeRate: emp ? (emp.defaultOvertimeRate || 0) : 0,
                                             hourlyRate: hourlyRate
@@ -189,7 +200,7 @@ const HR = () => {
                                         <div>
                                             <span className="text-gray-500 block text-xs">বেতনের ধরন</span>
                                             <span className="font-medium text-gray-800">
-                                                {selectedEmp.salaryType === 'Monthly' ? 'মাসিক' : 'ঘন্টা চুক্তি'} (৳{selectedEmp.salary})
+                                                {selectedEmp.salaryType === 'Monthly' ? 'মাসিক' : 'কাজ অনুযায়ী'} (৳{selectedEmp.salary})
                                             </span>
                                         </div>
                                         <div>
@@ -286,7 +297,7 @@ const HR = () => {
                             </button>
                         </form>
                     </div>
-                    
+
                     <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
                         <h4 className="font-bold text-blue-800 mb-2">নির্দেশনা</h4>
                         <ul className="list-disc list-inside text-sm text-blue-700 space-y-2">
@@ -357,7 +368,7 @@ const HR = () => {
                                 <h2 className="text-2xl font-bold text-gray-800">বেতন স্লিপ</h2>
                                 <p className="text-gray-500">মাস: {new Date(0, payrollQuery.month - 1).toLocaleString('default', { month: 'long' })}, {payrollQuery.year}</p>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-6 mb-6">
                                 <div>
                                     <p className="text-sm text-gray-500">কর্মীর নাম</p>
@@ -414,7 +425,7 @@ const HR = () => {
                                                 <tr key={idx} className="hover:bg-gray-50">
                                                     <td className="px-3 py-2">{new Date(day.date).toLocaleDateString('bn-BD')}</td>
                                                     <td className="px-3 py-2">
-                                                        {day.rate} <span className="text-xs text-gray-400">({day.type === 'Hourly' || day.type === 'Hourly Override' ? 'ঘন্টা' : 'মাসিক'})</span>
+                                                        {day.rate} <span className="text-xs text-gray-400">({day.type === 'Task-wise' || day.type === 'Hourly Override' ? 'কাজ' : 'মাসিক'})</span>
                                                     </td>
                                                     <td className="px-3 py-2">{day.income}</td>
                                                     <td className="px-3 py-2">
@@ -437,138 +448,7 @@ const HR = () => {
                 </div>
             )}
 
-            {/* Modal for Add Employee (Existing Code) */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
-                        <h2 className="text-2xl font-bold mb-6 text-gray-800">নতুন কর্মী যোগ করুন</h2>
-                        <form onSubmit={handleAddEmployee} className="space-y-4">
-                           {/* ... Same form fields as before ... */}
-                           <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">পুরো নাম</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                    value={employeeForm.name}
-                                    onChange={(e) => setEmployeeForm({ ...employeeForm, name: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">পদবী</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                    value={employeeForm.designation}
-                                    onChange={(e) => setEmployeeForm({ ...employeeForm, designation: e.target.value })}
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">ইমেইল</label>
-                                    <input
-                                        type="email"
-                                        className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                        value={employeeForm.email}
-                                        onChange={(e) => setEmployeeForm({ ...employeeForm, email: e.target.value })}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">ফোন</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                        value={employeeForm.phone}
-                                        onChange={(e) => setEmployeeForm({ ...employeeForm, phone: e.target.value })}
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="space-y-3">
-                                <label className="block text-sm font-medium text-gray-700">বেতনের ধরন ও পরিমাণ</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <label className={`border p-3 rounded-lg cursor-pointer transition-colors ${employeeForm.salaryType === 'Monthly' ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'border-gray-200 hover:bg-gray-50'}`}>
-                                        <div className="flex items-center space-x-2 mb-2">
-                                            <input 
-                                                type="radio" 
-                                                name="salaryType" 
-                                                value="Monthly" 
-                                                checked={employeeForm.salaryType === 'Monthly'}
-                                                onChange={(e) => setEmployeeForm({ ...employeeForm, salaryType: e.target.value })}
-                                                className="text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            <span className="font-medium text-gray-800">মাসিক বেতন</span>
-                                        </div>
-                                        {employeeForm.salaryType === 'Monthly' && (
-                                            <input
-                                                type="number"
-                                                required
-                                                min="0"
-                                                placeholder="মোট বেতন (৳)"
-                                                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm outline-none focus:border-indigo-500"
-                                                value={employeeForm.salary}
-                                                onChange={(e) => setEmployeeForm({ ...employeeForm, salary: Number(e.target.value) })}
-                                            />
-                                        )}
-                                    </label>
-
-                                    <label className={`border p-3 rounded-lg cursor-pointer transition-colors ${employeeForm.salaryType === 'Hourly' ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'border-gray-200 hover:bg-gray-50'}`}>
-                                        <div className="flex items-center space-x-2 mb-2">
-                                            <input 
-                                                type="radio" 
-                                                name="salaryType" 
-                                                value="Hourly" 
-                                                checked={employeeForm.salaryType === 'Hourly'}
-                                                onChange={(e) => setEmployeeForm({ ...employeeForm, salaryType: e.target.value })}
-                                                className="text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            <span className="font-medium text-gray-800">ঘন্টা চুক্তি</span>
-                                        </div>
-                                        {employeeForm.salaryType === 'Hourly' && (
-                                            <input
-                                                type="number"
-                                                required
-                                                min="0"
-                                                placeholder="প্রতি ঘন্টা রেট (৳)"
-                                                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm outline-none focus:border-indigo-500"
-                                                value={employeeForm.salary}
-                                                onChange={(e) => setEmployeeForm({ ...employeeForm, salary: Number(e.target.value) })}
-                                            />
-                                        )}
-                                    </label>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ডিফল্ট ওভারটাইম রেট (টাকা/ঘন্টা)</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                    value={employeeForm.defaultOvertimeRate}
-                                    onChange={(e) => setEmployeeForm({ ...employeeForm, defaultOvertimeRate: Number(e.target.value) })}
-                                />
-                            </div>
-                            <div className="flex justify-end space-x-3 mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                                >
-                                    বাতিল
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
-                                >
-                                    কর্মী যোগ করুন
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

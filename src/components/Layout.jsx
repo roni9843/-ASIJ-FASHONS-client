@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Scissors, Users, LogOut, FileText, Briefcase, ShoppingBag, Truck } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Scissors, Users, LogOut, FileText, Briefcase, ShoppingBag, Truck, Settings, ClipboardList } from 'lucide-react';
 import useAuthStore from '../stores/useAuthStore';
+import ActionPasswordModal from './ActionPasswordModal';
 import logo from '../assets/logo.png';
 
 const Layout = () => {
@@ -12,12 +13,14 @@ const Layout = () => {
         { path: '/inventory', label: 'ইনভেন্টরি', icon: Package },
         { path: '/orders', label: 'অর্ডার', icon: ShoppingCart },
         { path: '/production', label: 'প্রোডাকশন', icon: Scissors },
+        { path: '/tasks', label: 'টাস্ক ডিষ্ট্রিবিউশন', icon: ClipboardList },
         { path: '/hr', label: 'এইচআর ও বেতন', icon: Users },
         { path: '/buyers', label: 'Buyers', icon: Briefcase },
         { path: '/purchases', label: 'Purchases', icon: ShoppingBag },
         { path: '/shipments', label: 'Shipments', icon: Truck },
         ...(user?.role === 'admin' ? [
             { path: '/expenses', label: 'খরচ', icon: FileText },
+            { path: '/settings', label: 'Settings', icon: Settings },
         ] : []),
     ];
 
@@ -89,6 +92,7 @@ const Layout = () => {
                     <Outlet />
                 </div>
             </main>
+            <ActionPasswordModal />
         </div>
     );
 };
