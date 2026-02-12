@@ -256,29 +256,37 @@ const Buyers = () => {
                                             </div>
                                         </div>
 
-                                        {/* Progress Bar */}
-                                        {buyerStats[buyer._id].totalTargetQty > 0 && (
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between items-center text-xs">
-                                                    <span className="text-gray-600 font-medium">Shipment Progress</span>
-                                                    <span className="font-bold text-gray-700">{buyerStats[buyer._id].completionPercentage}%</span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
-                                                    <div
-                                                        className={`h-full rounded-full transition-all duration-500 ${buyerStats[buyer._id].completionPercentage === 100
-                                                                ? 'bg-gradient-to-r from-green-400 to-green-600'
-                                                                : buyerStats[buyer._id].completionPercentage >= 71
-                                                                    ? 'bg-gradient-to-r from-blue-400 to-blue-600'
-                                                                    : buyerStats[buyer._id].completionPercentage >= 31
-                                                                        ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
-                                                                        : 'bg-gradient-to-r from-red-400 to-red-600'
-                                                            }`}
-                                                        style={{ width: `${buyerStats[buyer._id].completionPercentage}%` }}
-                                                    ></div>
-                                                </div>
-                                                <div className="text-xs text-gray-500 text-center">
-                                                    {buyerStats[buyer._id].totalShippedQty} / {buyerStats[buyer._id].totalTargetQty} items
-                                                </div>
+                                        {/* Item-Level Progress Bars */}
+                                        {buyerStats[buyer._id].items && buyerStats[buyer._id].items.length > 0 && (
+                                            <div className="space-y-2">
+                                                <div className="text-xs font-semibold text-gray-700 mb-2">Items Progress</div>
+                                                {buyerStats[buyer._id].items.map((item, idx) => (
+                                                    <div key={idx} className="space-y-1">
+                                                        <div className="flex justify-between items-center text-xs">
+                                                            <span className="text-gray-700 font-medium truncate flex-1">{item.item}</span>
+                                                            <span className="font-bold text-gray-600 ml-2">{item.completionPercentage}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                            <div
+                                                                className={`h-full rounded-full transition-all duration-500 ${item.completionPercentage === 100
+                                                                        ? 'bg-gradient-to-r from-green-400 to-green-600'
+                                                                        : item.completionPercentage >= 71
+                                                                            ? 'bg-gradient-to-r from-blue-400 to-blue-600'
+                                                                            : item.completionPercentage >= 31
+                                                                                ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                                                                                : 'bg-gradient-to-r from-red-400 to-red-600'
+                                                                    }`}
+                                                                style={{ width: `${item.completionPercentage}%` }}
+                                                            ></div>
+                                                        </div>
+                                                        <div className="flex justify-between text-xs text-gray-500">
+                                                            <span>{item.shippedQty} / {item.totalQty} {item.unit}</span>
+                                                            {item.pendingQty > 0 && (
+                                                                <span className="text-orange-600 font-medium">{item.pendingQty} pending</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         )}
                                     </div>
