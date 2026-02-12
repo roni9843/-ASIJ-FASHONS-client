@@ -269,12 +269,12 @@ const Buyers = () => {
                                                         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                                                             <div
                                                                 className={`h-full rounded-full transition-all duration-500 ${item.completionPercentage === 100
-                                                                        ? 'bg-gradient-to-r from-green-400 to-green-600'
-                                                                        : item.completionPercentage >= 71
-                                                                            ? 'bg-gradient-to-r from-blue-400 to-blue-600'
-                                                                            : item.completionPercentage >= 31
-                                                                                ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
-                                                                                : 'bg-gradient-to-r from-red-400 to-red-600'
+                                                                    ? 'bg-gradient-to-r from-green-400 to-green-600'
+                                                                    : item.completionPercentage >= 71
+                                                                        ? 'bg-gradient-to-r from-blue-400 to-blue-600'
+                                                                        : item.completionPercentage >= 31
+                                                                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                                                                            : 'bg-gradient-to-r from-red-400 to-red-600'
                                                                     }`}
                                                                 style={{ width: `${item.completionPercentage}%` }}
                                                             ></div>
@@ -319,99 +319,131 @@ const Buyers = () => {
                 )}
             </div>
 
-            {/* Modal */}
+            {/* Glassmorphism Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden">
-                        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                            <h2 className="text-lg font-bold text-gray-800">
-                                {currentBuyer ? 'Edit Buyer' : 'Add New Buyer'}
-                            </h2>
-                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
-                                <X size={20} />
-                            </button>
+                <div className="fixed inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+                    <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-white/20 animate-slideUp">
+                        {/* Header with Gradient */}
+                        <div className="relative px-6 py-5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+                            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                            <div className="relative flex justify-between items-center">
+                                <h2 className="text-xl font-bold text-white flex items-center">
+                                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3">
+                                        <Building2 size={20} className="text-white" />
+                                    </div>
+                                    {currentBuyer ? 'Edit Buyer' : 'Add New Buyer'}
+                                </h2>
+                                <button
+                                    onClick={closeModal}
+                                    className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all"
+                                >
+                                    <X size={22} />
+                                </button>
+                            </div>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
+
+                        {/* Form */}
+                        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                            {/* Name Field */}
+                            <div className="group">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-2"></span>
+                                    Name <span className="text-red-500 ml-1">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     name="name"
                                     required
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border px-3 py-2"
-                                    placeholder="Buyer Name"
+                                    className="w-full bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 px-4 py-3 transition-all outline-none hover:border-indigo-300"
+                                    placeholder="Enter buyer name"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+
+                            {/* Company Name Field */}
+                            <div className="group">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mr-2"></span>
+                                    Company Name
+                                </label>
                                 <input
                                     type="text"
                                     name="companyName"
                                     value={formData.companyName}
                                     onChange={handleInputChange}
-                                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border px-3 py-2"
+                                    className="w-full bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 px-4 py-3 transition-all outline-none hover:border-purple-300"
                                     placeholder="Company Ltd."
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Numbers</label>
-                                {formData.phones.map((phone, index) => (
-                                    <div key={index} className="flex gap-2 mb-2">
-                                        <input
-                                            type="text"
-                                            value={phone}
-                                            onChange={(e) => handlePhoneChange(index, e.target.value)}
-                                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border px-3 py-2"
-                                            placeholder="017..."
-                                        />
-                                        {formData.phones.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => removePhoneField(index)}
-                                                className="text-red-500 hover:text-red-700"
-                                            >
-                                                <X size={18} />
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-                                <button
-                                    type="button"
-                                    onClick={addPhoneField}
-                                    className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
-                                >
-                                    <Plus size={14} className="mr-1" /> Add Another Phone
-                                </button>
+                            {/* Phone Numbers */}
+                            <div className="group">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500 mr-2"></span>
+                                    Phone Numbers
+                                </label>
+                                <div className="space-y-2">
+                                    {formData.phones.map((phone, index) => (
+                                        <div key={index} className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={phone}
+                                                onChange={(e) => handlePhoneChange(index, e.target.value)}
+                                                className="flex-1 bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500 px-4 py-3 transition-all outline-none hover:border-pink-300"
+                                                placeholder="017..."
+                                            />
+                                            {formData.phones.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePhoneField(index)}
+                                                    className="w-12 h-12 flex items-center justify-center text-red-500 hover:text-white hover:bg-red-500 rounded-xl transition-all border-2 border-red-200 hover:border-red-500"
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={addPhoneField}
+                                        className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold flex items-center bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-all"
+                                    >
+                                        <Plus size={16} className="mr-1" /> Add Another Phone
+                                    </button>
+                                </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            {/* Address Field */}
+                            <div className="group">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                                    Address
+                                </label>
                                 <textarea
                                     name="address"
-                                    rows="2"
+                                    rows="3"
                                     value={formData.address}
                                     onChange={handleInputChange}
-                                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border px-3 py-2"
+                                    className="w-full bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 px-4 py-3 transition-all outline-none hover:border-blue-300 resize-none"
                                     placeholder="Full Address"
                                 />
                             </div>
 
-                            <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-100">
+                            {/* Action Buttons */}
+                            <div className="flex justify-end space-x-3 pt-4 border-t-2 border-gray-100">
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                                    className="px-6 py-3 border-2 border-gray-300 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
+                                    className="px-6 py-3 rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all transform hover:scale-105"
                                 >
-                                    Save Buyer
+                                    💾 Save Buyer
                                 </button>
                             </div>
                         </form>
