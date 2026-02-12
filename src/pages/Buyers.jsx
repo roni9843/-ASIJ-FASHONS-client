@@ -319,36 +319,34 @@ const Buyers = () => {
                 )}
             </div>
 
-            {/* Glassmorphism Modal */}
+            {/* Professional Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-                    <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-white/20 animate-slideUp">
-                        {/* Header with Gradient */}
-                        <div className="relative px-6 py-5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
-                            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-                            <div className="relative flex justify-between items-center">
-                                <h2 className="text-xl font-bold text-white flex items-center">
-                                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3">
-                                        <Building2 size={20} className="text-white" />
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+                    <div className="bg-white backdrop-blur-xl rounded-lg shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 animate-slideUp">
+                        {/* Professional Header */}
+                        <div className="relative px-6 py-4 bg-slate-800 border-b border-slate-700">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-lg font-semibold text-white flex items-center">
+                                    <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center mr-3 shadow-lg">
+                                        <Building2 size={18} className="text-white" />
                                     </div>
                                     {currentBuyer ? 'Edit Buyer' : 'Add New Buyer'}
                                 </h2>
                                 <button
                                     onClick={closeModal}
-                                    className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all"
+                                    className="text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg p-2 transition-all"
                                 >
-                                    <X size={22} />
+                                    <X size={20} />
                                 </button>
                             </div>
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-slate-50">
                             {/* Name Field */}
-                            <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-2"></span>
-                                    Name <span className="text-red-500 ml-1">*</span>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    Name <span className="text-red-600">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -356,15 +354,14 @@ const Buyers = () => {
                                     required
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className="w-full bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 px-4 py-3 transition-all outline-none hover:border-indigo-300"
+                                    className="w-full bg-white border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 px-3.5 py-2.5 transition-all outline-none hover:border-slate-400"
                                     placeholder="Enter buyer name"
                                 />
                             </div>
 
                             {/* Company Name Field */}
-                            <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mr-2"></span>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                                     Company Name
                                 </label>
                                 <input
@@ -372,15 +369,14 @@ const Buyers = () => {
                                     name="companyName"
                                     value={formData.companyName}
                                     onChange={handleInputChange}
-                                    className="w-full bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 px-4 py-3 transition-all outline-none hover:border-purple-300"
+                                    className="w-full bg-white border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 px-3.5 py-2.5 transition-all outline-none hover:border-slate-400"
                                     placeholder="Company Ltd."
                                 />
                             </div>
 
                             {/* Phone Numbers */}
-                            <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500 mr-2"></span>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                                     Phone Numbers
                                 </label>
                                 <div className="space-y-2">
@@ -390,16 +386,16 @@ const Buyers = () => {
                                                 type="text"
                                                 value={phone}
                                                 onChange={(e) => handlePhoneChange(index, e.target.value)}
-                                                className="flex-1 bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500 px-4 py-3 transition-all outline-none hover:border-pink-300"
+                                                className="flex-1 bg-white border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 px-3.5 py-2.5 transition-all outline-none hover:border-slate-400"
                                                 placeholder="017..."
                                             />
                                             {formData.phones.length > 1 && (
                                                 <button
                                                     type="button"
                                                     onClick={() => removePhoneField(index)}
-                                                    className="w-12 h-12 flex items-center justify-center text-red-500 hover:text-white hover:bg-red-500 rounded-xl transition-all border-2 border-red-200 hover:border-red-500"
+                                                    className="w-11 h-11 flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-slate-300 hover:border-red-300"
                                                 >
-                                                    <X size={18} />
+                                                    <X size={16} />
                                                 </button>
                                             )}
                                         </div>
@@ -407,7 +403,7 @@ const Buyers = () => {
                                     <button
                                         type="button"
                                         onClick={addPhoneField}
-                                        className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold flex items-center bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-all"
+                                        className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-all"
                                     >
                                         <Plus size={16} className="mr-1" /> Add Another Phone
                                     </button>
@@ -415,9 +411,8 @@ const Buyers = () => {
                             </div>
 
                             {/* Address Field */}
-                            <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                                     Address
                                 </label>
                                 <textarea
@@ -425,25 +420,25 @@ const Buyers = () => {
                                     rows="3"
                                     value={formData.address}
                                     onChange={handleInputChange}
-                                    className="w-full bg-white/60 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 px-4 py-3 transition-all outline-none hover:border-blue-300 resize-none"
+                                    className="w-full bg-white border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 px-3.5 py-2.5 transition-all outline-none hover:border-slate-400 resize-none"
                                     placeholder="Full Address"
                                 />
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex justify-end space-x-3 pt-4 border-t-2 border-gray-100">
+                            <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200">
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="px-6 py-3 border-2 border-gray-300 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all"
+                                    className="px-5 py-2.5 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-6 py-3 rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all transform hover:scale-105"
+                                    className="px-5 py-2.5 rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-all"
                                 >
-                                    💾 Save Buyer
+                                    Save Buyer
                                 </button>
                             </div>
                         </form>
