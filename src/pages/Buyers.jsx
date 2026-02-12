@@ -10,6 +10,7 @@ const Buyers = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const [buyers, setBuyers] = useState([]);
+    const [buyerStats, setBuyerStats] = useState({}); // Store stats for each buyer
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -34,6 +35,21 @@ const Buyers = () => {
             };
             const { data } = await axios.get(`${API_BASE_URL}/buyers`, config);
             setBuyers(data);
+
+            // Fetch stats for each buyer
+            const statsPromises = data.map(buyer =>
+                axios.get(`${API_BASE_URL}/buyers/${buyer._id}/stats`, config)
+                    .then(res => ({ buyerId: buyer._id, stats: res.data }))
+                    .catch(() => ({ buyerId: buyer._id, stats: null }))
+            );
+
+            const statsResults = await Promise.all(statsPromises);
+            const statsMap = {};
+            statsResults.forEach(({ buyerId, stats }) => {
+                statsMap[buyerId] = stats;
+            });
+            setBuyerStats(statsMap);
+
             setLoading(false);
         } catch (error) {
             console.error(error);
@@ -220,6 +236,54 @@ const Buyers = () => {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Progress Tracking Section */}
+                                {buyerStats[buyer._id] && (
+                                    <div className="mt-4 space-y-3">
+                                        {/* Statistics Badges */}
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <div className="bg-blue-50 rounded-lg p-2 text-center">
+                                                <div className="text-xs text-blue-600 font-medium">Orders</div>
+                                                <div className="text-lg font-bold text-blue-700">{buyerStats[buyer._id].totalPurchases || 0}</div>
+                                            </div>
+                                            <div className="bg-green-50 rounded-lg p-2 text-center">
+                                                <div className="text-xs text-green-600 font-medium">Shipped</div>
+                                                <div className="text-lg font-bold text-green-700">{buyerStats[buyer._id].totalShippedQty || 0}</div>
+                                            </div>
+                                            <div className="bg-orange-50 rounded-lg p-2 text-center">
+                                                <div className="text-xs text-orange-600 font-medium">Pending</div>
+                                                <div className="text-lg font-bold text-orange-700">{buyerStats[buyer._id].pendingQty || 0}</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Progress Bar */}
+                                        {buyerStats[buyer._id].totalTargetQty > 0 && (
+                                            <div className="space-y-1">
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-gray-600 font-medium">Shipment Progress</span>
+                                                    <span className="font-bold text-gray-700">{buyerStats[buyer._id].completionPercentage}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                                                    <div
+                                                        className={`h-full rounded-full transition-all duration-500 ${buyerStats[buyer._id].completionPercentage === 100
+                                                                ? 'bg-gradient-to-r from-green-400 to-green-600'
+                                                                : buyerStats[buyer._id].completionPercentage >= 71
+                                                                    ? 'bg-gradient-to-r from-blue-400 to-blue-600'
+                                                                    : buyerStats[buyer._id].completionPercentage >= 31
+                                                                        ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                                                                        : 'bg-gradient-to-r from-red-400 to-red-600'
+                                                            }`}
+                                                        style={{ width: `${buyerStats[buyer._id].completionPercentage}%` }}
+                                                    ></div>
+                                                </div>
+                                                <div className="text-xs text-gray-500 text-center">
+                                                    {buyerStats[buyer._id].totalShippedQty} / {buyerStats[buyer._id].totalTargetQty} items
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-2">
                                     <button
                                         onClick={() => handleNewPurchase(buyer)}
