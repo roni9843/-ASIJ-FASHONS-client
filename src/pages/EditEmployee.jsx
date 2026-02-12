@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useAppStore from '../stores/useAppStore';
+import useAuthStore from '../stores/useAuthStore';
+import PasswordModal from '../components/PasswordModal';
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
 
 const EditEmployee = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const { updateEmployee, isLoading } = useAppStore();
+    const { verifyPassword } = useAuthStore();
     const [loadingData, setLoadingData] = useState(true);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -85,10 +89,21 @@ const EditEmployee = () => {
             return;
         }
 
-        const success = await updateEmployee(id, formData);
-        if (success) {
-            navigate('/hr');
+        // Show password modal instead of direct update
+        setShowPasswordModal(true);
+    };
+
+    const handlePasswordVerify = async (password) => {
+        const isValid = await verifyPassword(password);
+
+        if (isValid) {
+            const success = await updateEmployee(id, formData);
+            if (success) {
+                navigate('/hr');
+            }
+            return true;
         }
+        return false;
     };
 
     if (loadingData) {
@@ -300,6 +315,15 @@ const EditEmployee = () => {
                     </form>
                 </div>
             </div>
+
+            {/* Password Verification Modal */}
+            <PasswordModal
+                isOpen={showPasswordModal}
+                onClose={() => setShowPasswordModal(false)}
+                onVerify={handlePasswordVerify}
+                title="পাসওয়ার্ড নিশ্চিতকরণ"
+                message="কর্মী তথ্য আপডেট করতে পাসওয়ার্ড দিন"
+            />
         </div>
     );
 };

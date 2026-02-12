@@ -1,14 +1,23 @@
 
 import { useEffect, useState } from 'react';
 import useAppStore from '../stores/useAppStore';
-import useActionPasswordStore from '../stores/useActionPasswordStore';
+import useAuthStore from '../stores/useAuthStore';
+import PasswordModal from '../components/PasswordModal';
 import { UserPlus, Search, Phone, Mail, Clock, DollarSign, Calendar, Edit } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const HR = () => {
     const { employees, fetchEmployees, deleteEmployee, markAttendance, calculatePayroll, isLoading } = useAppStore();
+    const { verifyPassword } = useAuthStore();
+    const navigate = useNavigate();
+
     const [activeTab, setActiveTab] = useState('employees');
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Password Modal State
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [pendingAction, setPendingAction] = useState(null); // 'edit' or 'delete'
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 
     // Attendance State
     const [attendanceData, setAttendanceData] = useState({
@@ -21,7 +30,8 @@ const HR = () => {
     });
     const [payrollResult, setPayrollResult] = useState(null);
 
-    const { openModal } = useActionPasswordStore();
+    // useActionPasswordStore is no longer used, we use local PasswordModal
+    // const { openModal } = useActionPasswordStore();
 
     useEffect(() => {
         fetchEmployees();
@@ -41,12 +51,35 @@ const HR = () => {
         setPayrollResult(result);
     };
 
-    const handleDeleteEmployee = async (id) => {
-        openModal(async () => {
-            if (window.confirm('আপনি কি নিশ্চিত যে আপনি এই কর্মীকে ডিলিট করতে চান?')) {
-                await deleteEmployee(id);
+    const handleEditClick = (id) => {
+        setSelectedEmployeeId(id);
+        setPendingAction('edit');
+        setShowPasswordModal(true);
+    };
+
+    const handleDeleteClick = (id) => {
+        setSelectedEmployeeId(id);
+        setPendingAction('delete');
+        setShowPasswordModal(true);
+    };
+
+    const handlePasswordVerify = async (password) => {
+        const isValid = await verifyPassword(password);
+
+        if (isValid) {
+            if (pendingAction === 'edit') {
+                navigate(`/hr/edit-employee/${selectedEmployeeId}`);
+            } else if (pendingAction === 'delete') {
+                if (window.confirm('আপনি কি নিশ্চিত যে আপনি এই কর্মীকে ডিলিট করতে চান?')) {
+                    await deleteEmployee(selectedEmployeeId);
+                }
             }
-        }, 'delete employee');
+            setPendingAction(null);
+            setSelectedEmployeeId(null);
+            return true;
+        }
+
+        return false;
     };
 
     const filteredEmployees = employees.filter(emp =>
@@ -87,7 +120,7 @@ const HR = () => {
                             />
                         </div>
                         <Link
-                            to="/hr/add"
+                            to="/hr/add-employee"
                             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
                         >
                             <UserPlus size={20} />
@@ -125,15 +158,15 @@ const HR = () => {
                                         <span className="font-bold text-gray-800">৳{emp.salary} <span className="text-xs font-normal text-gray-500">({emp.salaryType === 'Monthly' ? 'মাসিক' : 'কাজ অনুযায়ী'})</span></span>
                                     </div>
                                     <div className="flex gap-2 mt-2">
-                                        <Link
-                                            to={`/hr/edit/${emp._id}`}
+                                        <button
+                                            onClick={() => handleEditClick(emp._id)}
                                             className="flex-1 flex justify-center items-center text-indigo-600 text-sm hover:bg-indigo-50 py-1 rounded transition-colors"
                                         >
                                             <Edit size={14} className="mr-1" />
                                             এডিট
-                                        </Link>
+                                        </button>
                                         <button
-                                            onClick={() => handleDeleteEmployee(emp._id)}
+                                            onClick={() => handleDeleteClick(emp._id)}
                                             className="flex-1 text-red-500 text-sm hover:bg-red-50 py-1 rounded transition-colors"
                                         >
                                             ডিলিট
@@ -449,6 +482,19 @@ const HR = () => {
             )}
 
 
+
+            {/* Password Verification Modal */}
+            <PasswordModal
+                isOpen={showPasswordModal}
+                onClose={() => {
+                    setShowPasswordModal(false);
+                    setPendingAction(null);
+                    setSelectedEmployeeId(null);
+                }}
+                onVerify={handlePasswordVerify}
+                title="পাসওয়ার্ড নিশ্চিতকরণ"
+                message={pendingAction === 'edit' ? 'কর্মী তথ্য এডিট করতে পাসওয়ার্ড দিন' : 'কর্মী ডিলিট করতে পাসওয়ার্ড দিন'}
+            />
         </div>
     );
 };

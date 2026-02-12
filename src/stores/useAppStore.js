@@ -64,6 +64,21 @@ const useAppStore = create((set) => ({
         }
     },
 
+    updateEmployee: async (id, employeeData) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.put(`${HR_API}/${id}`, employeeData);
+            set((state) => ({ 
+                employees: state.employees.map(emp => emp._id === id ? response.data : emp),
+                isLoading: false 
+            }));
+            return true;
+        } catch (error) {
+            set({ error: error.message, isLoading: false });
+            return false;
+        }
+    },
+
     deleteEmployee: async (id) => {
         set({ isLoading: true });
         try {
