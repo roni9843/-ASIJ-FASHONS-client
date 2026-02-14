@@ -8,6 +8,13 @@ import Production from './pages/Production';
 import HR from './pages/HR';
 import Expenses from './pages/Expenses';
 import CreateExpense from './pages/CreateExpense';
+import CreateGeneralExpense from './pages/CreateGeneralExpense';
+import CreateEmployeeExpense from './pages/CreateEmployeeExpense';
+import CreateExternalExpense from './pages/CreateExternalExpense';
+import CreateExternalProfile from './pages/CreateExternalProfile';
+import ManageProfiles from './pages/ManageProfiles'; // New Import
+import CreateLoanReturn from './pages/CreateLoanReturn';
+
 import Buyers from './pages/Buyers';
 import Purchases from './pages/Purchases';
 import CreatePurchase from './pages/CreatePurchase';
@@ -54,7 +61,15 @@ function App() {
           <Route path="hr/edit-employee/:id" element={<EditEmployee />} />
           <Route path="expenses" element={<Expenses />} />
           <Route path="expenses/create" element={<CreateExpense />} />
-          <Route path="expenses/:id" element={<CreateExpense />} />
+          <Route path="expenses/create/general" element={<CreateGeneralExpense />} />
+          <Route path="expenses/create/employee" element={<CreateEmployeeExpense />} />
+          <Route path="expenses/create/external" element={<CreateExternalExpense />} />
+          <Route path="expenses/profiles" element={<ManageProfiles />} />
+          <Route path="expenses/return-loan" element={<CreateLoanReturn />} />
+          <Route path="expenses/create/external-profile" element={<CreateExternalProfile />} />
+          <Route path="expenses/employee/:id" element={<CreateEmployeeExpense />} />
+          <Route path="expenses/external/:id" element={<CreateExternalExpense />} />
+          <Route path="expenses/:id" element={<CreateGeneralExpense />} />
           <Route path="inventory" element={<Inventory />} />
           <Route path="orders" element={<Orders />} />
           <Route path="purchases" element={<Purchases />} />
